@@ -358,7 +358,7 @@ def sync_catalog_images():
                     product.get('description', ''),
                     product.get('category', ''),
                     product.get('rating', 0.0),
-                    product.get('popularity', False),
+                    bool(product.get('popularity', False)),
                     product.get('image', ''),
                     product.get('badge_class', ''),
                     product.get('badge_icon', ''),
