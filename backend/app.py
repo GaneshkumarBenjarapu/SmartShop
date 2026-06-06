@@ -784,6 +784,33 @@ def home():
                            most_viewed=most_viewed,
                            highest_rated=highest_rated)
 
+@app.route("/db-status")
+def db_status():
+    try:
+        from db import get_db_connection
+    except ImportError:
+        from backend.db import get_db_connection
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM products")
+        count = c.fetchone()[0]
+        c.execute("SELECT id, name, category, price FROM products LIMIT 3")
+        rows = c.fetchall()
+        products = [dict(r) for r in rows]
+        conn.close()
+        return jsonify({
+            'status': 'success',
+            'database_type': str(type(conn)),
+            'product_count': count,
+            'sample_products': products
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        })
+
 @app.route("/products")
 def products():
     products, active_category, cat_min, cat_max = get_filtered_products(request.args)
