@@ -1,0 +1,102 @@
+[
+  {
+    "id": 6,
+    "name": "Luxury Rose Perfume",
+    "image": "/static/perfume_luxury.png"
+  },
+  {
+    "id": 37,
+    "name": "Maybelline Fit Me Foundation",
+    "image": "/static/foundation_maybelline.png"
+  },
+  {
+    "id": 53,
+    "name": "Lakme Absolute Foundation",
+    "image": "/static/foundation_lakme.png"
+  },
+  {
+    "id": 54,
+    "name": "Huda Beauty Eyeshadow Palette",
+    "image": "https://nabmakeup.com/wp-content/uploads/2025/07/1000341636.jpg"
+  },
+  {
+    "id": 55,
+    "name": "L'Or\u00e9al Paris Revitalift Serum",
+    "image": "/static/serum_loreal.png"
+  },
+  {
+    "id": 128,
+    "name": "Lakme Matte Lipstick 16",
+    "image": "https://thumbs.dreamstime.com/b/matte-lipstick-colors-isolated-white-background-matte-lipstick-colors-isolated-white-background-makeup-product-high-117461374.jpg"
+  },
+  {
+    "id": 129,
+    "name": "Lakme Matte Lipstick 30",
+    "image": "https://imgs6.freeup.app/fit-in/800x1000/filters:upscale()/3fc38dd9848cbd0591595484fe74b89f.jpg"
+  },
+  {
+    "id": 130,
+    "name": "Lakme Matte Foundation 9",
+    "image": "https://assets.myntassets.com/h_200,w_200,c_fill,g_auto/h_1440,q_100,w_1080/v1/assets/images/26807484/2024/1/5/8616a9cb-6f50-44b9-86f8-b475237ce3671704432487720-Lakme-Women-Foundation-1731704432487260-1.jpg"
+  },
+  {
+    "id": 131,
+    "name": "Lakme Matte Foundation 58",
+    "image": "https://www.lakmeindia.com/cdn/shop/files/19634_H-8901030981586_0fad085f-08a1-4385-80c5-7a69e163f0cd_1024x.jpg?v=1717479725"
+  },
+  {
+    "id": 132,
+    "name": "Huda Hydrating Serum 11",
+    "image": "http://sugari.lk/cdn/shop/products/hbprimer.jpg?v=1675333267"
+  },
+  {
+    "id": 133,
+    "name": "Huda Eyeshadow Palette 21",
+    "image": "https://nabmakeup.com/wp-content/uploads/2025/07/1000341636.jpg"
+  },
+  {
+    "id": 134,
+    "name": "Huda Matte Foundation 2",
+    "image": "https://nirnita.com/storage/hb-matte-metal-black-white0118.png"
+  },
+  {
+    "id": 135,
+    "name": "Huda Eyeshadow Palette 31",
+    "image": "https://nabmakeup.com/wp-content/uploads/2025/07/1000341637.jpg"
+  },
+  {
+    "id": 136,
+    "name": "L'Or\u00e9al Paris Matte Lipstick 59",
+    "image": "https://makeuplabs.co.uk/wp-content/uploads/2022/06/1-22.png"
+  },
+  {
+    "id": 137,
+    "name": "L'Or\u00e9al Paris Hydrating Serum 25",
+    "image": "https://us-i.makeupstore.com/l/ly/lyw5qwglnbgw.jpg"
+  },
+  {
+    "id": 138,
+    "name": "L'Or\u00e9al Paris Eyeshadow Palette 12",
+    "image": "https://img.freepik.com/premium-photo/eyeshadow-palette-makeup-product-isolated-white_145644-54930.jpg"
+  },
+  {
+    "id": 139,
+    "name": "L'Or\u00e9al Paris Matte Foundation 30",
+    "image": "https://static.beautytocare.com/media/catalog/product/cache/global/image/1300x1300/85e4522595efc69f496374d01ef2bf13/l/-/l-oreal-paris-infaillible-24h-matte-cover-foundation-320-toffee-30ml.jpg"
+  },
+  {
+    "id": 140,
+    "name": "Maybelline Hydrating Serum 21",
+    "image": "https://thumbs.dreamstime.com/z/serum-white-background-skin-care-product-serum-white-skin-care-product-300889335.jpg"
+  },
+  {
+    "id": 141,
+    "name": "Maybelline Hydrating Serum 36",
+    "image": "https://m.media-amazon.com/images/I/71Qn75c2LiL.jpg"
+  },
+  {
+    "id": 142,
+    "name": "Maybelline Matte Lipstick 76",
+    "image": "https://i.pinimg.com/originals/72/45/f9/7245f96be98d939df0711738617e35a8.png"
+  }
+]

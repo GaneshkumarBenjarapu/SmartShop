@@ -1,0 +1,4 @@
+Atomic Habits: https://books.google.com/books/content?id=WmqyDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api
+Rich Dad Poor Dad: https://books.google.com/books/content?id=kRqeDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api
+Foundation: https://cdn.dummyjson.com/product-images/beauty/powder-canister/1.webp
+Perfume: https://cdn.dummyjson.com/product-images/fragrances/gucci-bloom-eau-de/1.webp
