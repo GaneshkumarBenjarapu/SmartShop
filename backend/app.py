@@ -65,9 +65,19 @@ app.config.update(
 )
 from flask_cors import CORS
 frontend_url = os.environ.get('FRONTEND_URL')
-allowed_origins = ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:3000", "http://localhost:5000", "http://localhost:5173", "http://127.0.0.1:5173"]
+allowed_origins = [
+    "http://localhost:5500", 
+    "http://127.0.0.1:5500", 
+    "http://localhost:3000", 
+    "http://localhost:5000", 
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173",
+    re.compile(r"^https://.*\.vercel\.app$")
+]
 if frontend_url:
     allowed_origins.append(frontend_url)
+    if frontend_url.endswith('/'):
+        allowed_origins.append(frontend_url[:-1])
 CORS(app, supports_credentials=True, origins=allowed_origins)
 # Validation helpers
 def is_valid_email(val):
