@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template as flask_render_template, request, redirect as flask_redirect, url_for, session, jsonify
 import urllib.parse
 import os
 import glob
@@ -9,6 +9,35 @@ from email.message import EmailMessage
 from flask import make_response
 from datetime import timedelta
 import re
+import json
+
+# REST API Overrides to convert monolith into JSON API
+def render_template(template_name, **context):
+    # Inject session state for the frontend
+    context['session'] = {
+        'user': session.get('user'),
+        'user_name': session.get('user_name'),
+        'show_new_user_quiz': session.get('show_new_user_quiz')
+    }
+    
+    clean_context = {}
+    for k, v in context.items():
+        try:
+            # Test serialization
+            json.dumps(v)
+            clean_context[k] = v
+        except TypeError:
+            # Handle DB row collections or other non-serializable objects
+            if isinstance(v, list):
+                clean_context[k] = [dict(item) if hasattr(item, 'keys') else str(item) for item in v]
+            elif hasattr(v, 'keys'):
+                clean_context[k] = dict(v)
+            else:
+                clean_context[k] = str(v)
+    return jsonify(clean_context)
+
+def redirect(location):
+    return jsonify({'redirect': location})
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,6 +57,18 @@ app = Flask(__name__, template_folder=os.path.join(base_dir, 'frontend', 'templa
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'smartshop_secret_key')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
+# Configure CORS and Session cookies for cross-origin requests
+is_prod = os.environ.get('RENDER') or os.environ.get('DATABASE_URL')
+app.config.update(
+    SESSION_COOKIE_SAMESITE='None' if is_prod else 'Lax',
+    SESSION_COOKIE_SECURE=True if is_prod else False,
+)
+from flask_cors import CORS
+frontend_url = os.environ.get('FRONTEND_URL')
+allowed_origins = ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:3000", "http://localhost:5000", "http://localhost:5173", "http://127.0.0.1:5173"]
+if frontend_url:
+    allowed_origins.append(frontend_url)
+CORS(app, supports_credentials=True, origins=allowed_origins)
 # Validation helpers
 def is_valid_email(val):
     if not val:
@@ -1554,7 +1595,12 @@ def resend_status():
     seconds_since = now - last_sent
     seconds_left = COOLDOWN - seconds_since if seconds_since < COOLDOWN else 0
     attempts_left = MAX_RESENDS - resend_count
-    return jsonify({'has_pending': True, 'seconds_left': seconds_left if seconds_left>0 else 0, 'attempts_left': attempts_left})
+    return jsonify({
+        'has_pending': True, 
+        'seconds_left': seconds_left if seconds_left>0 else 0, 
+        'attempts_left': attempts_left,
+        'recipient': pending.get('recipient')
+    })
 
 @app.route("/register", methods=["GET", "POST"])
 def register():

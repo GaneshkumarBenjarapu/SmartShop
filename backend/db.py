@@ -2,6 +2,130 @@ import sqlite3
 import os
 import json
 
+try:
+    import psycopg2
+    import psycopg2.extras
+except ImportError:
+    psycopg2 = None
+
+class RowWrapper:
+    def __init__(self, description, row_tuple):
+        self._keys = [desc[0] for desc in description]
+        self._row = row_tuple
+        self._dict = dict(zip(self._keys, self._row))
+        
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._row[key]
+        return self._dict.get(key)
+        
+    def keys(self):
+        return self._keys
+        
+    def __iter__(self):
+        return iter(self._row)
+        
+    def __len__(self):
+        return len(self._row)
+        
+    def get(self, key, default=None):
+        return self._dict.get(key, default)
+        
+    def items(self):
+        return self._dict.items()
+
+def translate_sqlite_to_postgres(sql):
+    sql = sql.replace('?', '%s')
+    sql_upper = sql.upper().strip()
+    if 'INSERT OR REPLACE INTO' in sql_upper:
+        sql = sql.replace('INSERT OR REPLACE INTO', 'INSERT INTO').replace('insert or replace into', 'insert into')
+        if 'PRODUCT_PRICES' in sql_upper:
+            sql += """ ON CONFLICT (product_id, marketplace_name) 
+                       DO UPDATE SET price = EXCLUDED.price, discount_percentage = EXCLUDED.discount_percentage, last_updated = CURRENT_TIMESTAMP """
+        elif 'PRODUCTS' in sql_upper:
+            sql += """ ON CONFLICT (id) 
+                       DO UPDATE SET name = EXCLUDED.name, price = EXCLUDED.price, description = EXCLUDED.description, 
+                                     category = EXCLUDED.category, rating = EXCLUDED.rating, image = EXCLUDED.image, 
+                                     popularity = EXCLUDED.popularity """
+        elif 'SAVED_ITEMS' in sql_upper:
+            sql += """ ON CONFLICT (email, product_id) 
+                       DO UPDATE SET collection_name = EXCLUDED.collection_name """
+        elif 'RECOMMENDATION_FEEDBACK' in sql_upper:
+            sql += """ ON CONFLICT (email, product_id) 
+                       DO UPDATE SET feedback_type = EXCLUDED.feedback_type """
+    
+    if 'AUTOINCREMENT' in sql_upper:
+        sql = sql.replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
+        sql = sql.replace('integer primary key autoincrement', 'serial primary key')
+        
+    return sql
+
+class PostgresCursorWrapper:
+    def __init__(self, cur):
+        self._cur = cur
+        
+    def execute(self, sql, params=None):
+        sql = translate_sqlite_to_postgres(sql)
+        if params is not None:
+            if not isinstance(params, (tuple, list, dict)):
+                params = (params,)
+        try:
+            self._cur.execute(sql, params)
+        except Exception as e:
+            raise sqlite3.OperationalError(str(e))
+        return self
+        
+    def fetchone(self):
+        row = self._cur.fetchone()
+        if row is None:
+            return None
+        return RowWrapper(self._cur.description, row)
+        
+    def fetchall(self):
+        rows = self._cur.fetchall()
+        desc = self._cur.description
+        return [RowWrapper(desc, r) for r in rows]
+        
+    def close(self):
+        self._cur.close()
+        
+    def __iter__(self):
+        return self
+        
+    def __next__(self):
+        row = self.fetchone()
+        if row is None:
+            raise StopIteration
+        return row
+
+class PostgresConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+        
+    def cursor(self):
+        return PostgresCursorWrapper(self._conn.cursor())
+        
+    def execute(self, sql, params=None):
+        cur = self._conn.cursor()
+        sql = translate_sqlite_to_postgres(sql)
+        if params is not None:
+            if not isinstance(params, (tuple, list, dict)):
+                params = (params,)
+        try:
+            cur.execute(sql, params)
+        except Exception as e:
+            raise sqlite3.OperationalError(str(e))
+        return PostgresCursorWrapper(cur)
+        
+    def commit(self):
+        self._conn.commit()
+        
+    def rollback(self):
+        self._conn.rollback()
+        
+    def close(self):
+        self._conn.close()
+
 def get_base_dir():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -9,9 +133,17 @@ def get_db_path():
     return os.path.join(get_base_dir(), 'data', 'shop.db')
 
 def get_db_connection():
-    conn = sqlite3.connect(get_db_path())
-    conn.row_factory = sqlite3.Row
-    return conn
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and psycopg2:
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        conn = psycopg2.connect(db_url)
+        return PostgresConnectionWrapper(conn)
+    else:
+        conn = sqlite3.connect(get_db_path())
+        conn.row_factory = sqlite3.Row
+        return conn
+
 
 def init_db():
     conn = get_db_connection()

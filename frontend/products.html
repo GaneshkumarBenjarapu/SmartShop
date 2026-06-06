@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShop - Search Results</title>
+    <!-- Base Layout Loader -->
+    <script src="/static/layout.js" defer></script>
+    <style>
+        :root {
+            --text-primary: #0F1111;
+            --text-secondary: #565959;
+            --card-bg: #ffffff;
+            --card-border: #dddddd;
+            --page-bg: #f8f8f8;
+            --glass-shadow: none;
+            --glass-blur: none;
+        }
+
+        body {
+            background-color: var(--page-bg);
+            color: var(--text-primary);
+        }
+
+        .product-list-item {
+            background: var(--card-bg) !important;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border) !important;
+            box-shadow: var(--glass-shadow);
+            color: var(--text-primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .product-list-item h3 a {
+            color: var(--text-primary) !important;
+            text-decoration: none;
+        }
+
+        .product-list-item h3 a:hover {
+            color: #FFA41C !important;
+            text-decoration: underline;
+        }
+
+        .product-list-item .price {
+            color: var(--text-primary) !important;
+        }
+
+        .product-list-item .delivery-text {
+            color: var(--text-secondary) !important;
+        }
+
+        .img-wrapper {
+            background: rgba(255, 255, 255, 0.85) !important;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bokehCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; display: none;"></canvas>
+
+    <div class="results-container" style="display: flex; gap: 30px; max-width: 1200px; margin: 20px auto; position: relative; z-index: 1; padding: 0 20px;">
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar" style="flex: 0 0 250px; background: var(--card-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; color: var(--text-primary); height: fit-content; box-shadow: var(--glass-shadow);">
+            <form action="/products" method="GET" id="brand-filter-form">
+                <!-- Preserve existing parameters -->
+                <input type="hidden" name="search" id="hidden-search">
+                <input type="hidden" name="category" id="hidden-category">
+                <input type="hidden" name="sort" id="hidden-sort">
+
+                <div id="brands-container"></div>
+
+                <h3 style="margin-top: 20px; margin-bottom: 20px; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">Price Range</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary); font-weight: 500;">
+                        <span id="priceMin">₹0</span>
+                        <span id="priceVal">₹200000</span>
+                    </div>
+                    <input type="range" name="max_price" id="max_price" min="0" max="200000" step="100" value="200000"
+                           oninput="document.getElementById('priceVal').innerText = '₹' + this.value"
+                           onchange="document.getElementById('brand-filter-form').submit();"
+                           style="width: 100%; accent-color: #007185; cursor: pointer;">
+
+                    <div id="clear-filters-container"></div>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Products Column -->
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
+            <!-- Sorting Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--card-border); padding: 15px 20px; border-radius: 12px; box-shadow: var(--glass-shadow);">
+                <h2 style="margin: 0; font-size: 20px; color: var(--text-primary);"><span id="category-title">All Products</span> <span style="font-size: 14px; color: var(--text-secondary); font-weight: normal;" id="results-count">(0 results)</span></h2>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="sort-select" style="font-size: 14px; color: var(--text-secondary); font-weight: 500;">Sort by:</label>
+                    <select id="sort-select" onchange="document.getElementById('hidden-sort').value = this.value; document.getElementById('brand-filter-form').submit();"
+                            style="padding: 8px 30px 8px 15px; border-radius: 8px; border: 1px solid var(--card-border); background: white; color: var(--text-primary); font-size: 14px; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 10px auto;">
+                        <option value="">Featured</option>
+                        <option value="low_to_high">Price: Low to High</option>
+                        <option value="high_to_low">Price: High to Low</option>
+                        <option value="rating">Average Customer Review</option>
+                        <option value="popularity">Popularity</option>
+                        <option value="newest">Newest Arrivals</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products List -->
+            <div id="products-list-container" style="display: flex; flex-direction: column; gap: 20px;">
+                <p style="text-align: center; font-size: 18px; color: #4a5568;">Loading products...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+              ? 'http://localhost:5000'
+              : 'https://smartshop-web.onrender.com';
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const search = urlParams.get('search') || '';
+            const category = urlParams.get('category') || '';
+            const brand = urlParams.get('brand') || '';
+            const sort = urlParams.get('sort') || '';
+            const maxPriceParam = urlParams.get('max_price') || '';
+
+            // Set hidden form values
+            document.getElementById('hidden-search').value = search;
+            document.getElementById('hidden-category').value = category;
+            document.getElementById('hidden-sort').value = sort;
+            document.getElementById('sort-select').value = sort;
+
+            // Trigger category-based bokeh background animation
+            if (category) {
+                initBokehBackground(category);
+            }
+
+            try {
+                // Fetch filtered products
+                const fetchUrl = `${API_URL}/products?${urlParams.toString()}`;
+                const res = await fetch(fetchUrl, { credentials: 'include' });
+                const data = await res.json();
+
+                const products = data.products || [];
+                const catMin = data.cat_min !== undefined ? data.cat_min : 0;
+                const catMax = data.cat_max !== undefined ? data.cat_max : 200000;
+                const activeCategory = data.active_category || '';
+
+                // Update category title and count
+                document.getElementById('category-title').innerText = activeCategory || 'All Products';
+                document.getElementById('results-count').innerText = `(${products.length} results)`;
+
+                // Setup price slider range
+                const priceMinEl = document.getElementById('priceMin');
+                const priceValEl = document.getElementById('priceVal');
+                const maxPriceSlider = document.getElementById('max_price');
+
+                priceMinEl.innerText = `₹${catMin}`;
+                maxPriceSlider.min = catMin;
+                maxPriceSlider.max = catMax;
+                
+                const currentMaxPrice = maxPriceParam !== '' ? parseInt(maxPriceParam) : catMax;
+                maxPriceSlider.value = currentMaxPrice;
+                priceValEl.innerText = `₹${currentMaxPrice}`;
+
+                // Populate Sidebar Brands
+                populateBrandsSidebar(activeCategory, brand);
+
+                // Populate Clear Filters button
+                if (brand || (maxPriceParam !== '' && parseInt(maxPriceParam) !== catMax) || sort) {
+                    document.getElementById('clear-filters-container').innerHTML = `
+                        <a href="/products?category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}"
+                           style="margin-top: 15px; color: #ef4444; font-size: 13.5px; text-decoration: none; cursor: pointer; display: inline-block;">
+                            <i class="fas fa-times-circle"></i> Clear All Filters
+                        </a>`;
+                }
+
+                // Render Products List
+                const listContainer = document.getElementById('products-list-container');
+                listContainer.innerHTML = '';
+
+                if (products.length > 0) {
+                    products.forEach(p => {
+                        const ratingFloat = parseFloat(p.rating || 0);
+                        let starsHtml = '';
+                        for (let i = 0; i < 5; i++) {
+                            if (ratingFloat >= i + 1) {
+                                starsHtml += '<i class="fas fa-star"></i>';
+                            } else if (ratingFloat > i) {
+                                starsHtml += '<i class="fas fa-star-half-alt"></i>';
+                            } else {
+                                starsHtml += '<i class="far fa-star" style="color: #ccc;"></i>';
+                            }
+                        }
+
+                        const cheapestBadge = p.cheapest_platform ? `
+                            <div style="font-size: 11px; margin-bottom: 12px; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; background-color: ${p.cheapest_platform === 'SmartShop' ? '#ecfdf5' : p.cheapest_platform === 'Amazon' ? '#fff7ed' : p.cheapest_platform === 'Flipkart' ? '#f0f9ff' : '#fff1f2'}; border: 1px solid ${p.cheapest_platform === 'SmartShop' ? '#10b981' : p.cheapest_platform === 'Amazon' ? '#fdba74' : p.cheapest_platform === 'Flipkart' ? '#7dd3fc' : '#fda4af'}; color: ${p.cheapest_platform === 'SmartShop' ? '#047857' : p.cheapest_platform === 'Amazon' ? '#c2410c' : p.cheapest_platform === 'Flipkart' ? '#0369a1' : '#be123c'}; font-weight: 600;">
+                                <i class="fas fa-search-dollar"></i> Lowest on ${p.cheapest_platform}
+                            </div>` : '';
+
+                        const fallbackImage = `this.onerror=null; this.src='/static/placeholders/${p.category === 'Toys' ? 'toys.svg' : p.category === 'Men Fashion' ? 'clothing.svg' : 'default.svg'}';`;
+
+                        const itemHtml = `
+                        <div class="product-list-item" style="display: flex; gap: 20px; padding: 20px; border-radius: 12px; background: white; border: 1px solid #e2e8f0;">
+                            <!-- Product Image -->
+                            <div class="img-wrapper" style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; border-radius: 8px;">
+                                <a href="/product/${p.id}" style="display: block; width: 100%; height: 100%;">
+                                    <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="${fallbackImage}">
+                                </a>
+                            </div>
+
+                            <!-- Details -->
+                            <div style="flex: 1; display:flex; flex-direction:column; justify-content:center;">
+                                <h3 style="margin: 0 0 10px 0;">
+                                    <a href="/product/${p.id}" style="font-size: 18px; font-weight: 600; color: #1a202c;">
+                                        ${p.name} - ${p.description}
+                                    </a>
+                                </h3>
+
+                                <div style="color: #FFA41C; margin-bottom: 12px; display:flex; align-items:center; gap:5px;">
+                                    ${starsHtml}
+                                    <span style="color: #007185; font-size: 14px; margin-left: 5px;">${ratingFloat.toFixed(1)}</span>
+                                </div>
+
+                                <div class="price" style="font-size: 26px; font-weight: 700; margin-bottom: 10px; color: #1e293b;">
+                                    <span style="font-size: 14px; font-weight: normal;">₹</span>${p.price}
+                                </div>
+
+                                ${cheapestBadge}
+
+                                <div>
+                                    <a href="/product/${p.id}" style="display: inline-block; background: #007185; color: white; padding: 8px 16px; border-radius: 8px; font-weight: bold; text-decoration: none; text-align: center; transition: background 0.2s; font-size:13.5px;" onmouseover="this.style.background='#005a6a';" onmouseout="this.style.background='#007185';">View Product</a>
+                                </div>
+                            </div>
+                        </div>`;
+                        listContainer.insertAdjacentHTML('beforeend', itemHtml);
+                    });
+                } else {
+                    listContainer.innerHTML = `
+                        <div style="padding: 40px 20px; text-align: center; color: #4a5568; background: white; border: 1px solid #cbd5e0; border-radius: 12px;">
+                            <i class="fas fa-search" style="font-size: 32px; opacity: 0.5; margin-bottom: 15px; display: block;"></i>
+                            No products match your search. <br>Please try checking your spelling or using more general terms.
+                        </div>`;
+                }
+
+            } catch (err) {
+                console.error("Failed to load products list:", err);
+            }
+        });
+
+        function populateBrandsSidebar(category, selectedBrand) {
+            let brands = [];
+            if (category === 'Shoes') brands = ['Adidas', 'Puma', 'Red Tape', 'Nike', 'Skechers'];
+            else if (category === 'Electronics') brands = ['Samsung', 'Apple', 'Sony', 'Boat', 'Dell'];
+            else if (category === 'Home Appliances') brands = ['Samsung', 'LG', 'Blue Star', 'Philips', 'Crompton', 'Prestige'];
+            else if (category === 'Beauty') brands = ['Lakme', 'Huda', "L'Oréal Paris", 'Maybelline', 'MAC', 'Clinique', 'Fenty Beauty'];
+            else if (category === 'Women Fashion') brands = ['Zara', 'H&M', 'Biba', 'Fabindia'];
+            else if (category === 'Men Fashion') brands = ['Roadster', "Levi's", 'Allen Solly', 'Peter England'];
+
+            const container = document.getElementById('brands-container');
+            if (brands.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">Brands</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">`;
+
+            brands.forEach(b => {
+                const checked = selectedBrand.toLowerCase() === b.toLowerCase() ? 'checked' : '';
+                html += `
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; color: var(--text-primary); transition: opacity 0.2s;">
+                        <input type="radio" name="brand" value="${b}" onchange="document.getElementById('brand-filter-form').submit();" ${checked} style="accent-color: #007185; width: 16px; height: 16px;">
+                        ${b}
+                    </label>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function initBokehBackground(current_cat) {
+            const canvas = document.getElementById('bokehCanvas');
+            if (!canvas) return;
+            canvas.style.display = 'block';
+            const ctx = canvas.getContext('2d');
+
+            let baseColor = '255, 255, 255';
+            let bgColor = '#0f1111';
+            
+            if (current_cat === 'Beauty') { baseColor = '251, 113, 133'; bgColor = '#230a10'; }
+            else if (current_cat === 'Electronics') { baseColor = '56, 189, 248'; bgColor = '#0f1a23'; }
+            else if (current_cat === 'Women Fashion') { baseColor = '244, 114, 182'; bgColor = '#1c0a14'; }
+            else if (current_cat === 'Men Fashion') { baseColor = '148, 163, 184'; bgColor = '#080a0f'; }
+            else if (current_cat === 'Books') { baseColor = '74, 222, 128'; bgColor = '#0a2113'; }
+            else if (current_cat === 'Home Appliances') { baseColor = '251, 191, 36'; bgColor = '#281a05'; }
+            else if (current_cat === 'Kidsware') { baseColor = '250, 204, 21'; bgColor = '#1a1804'; }
+            else if (current_cat === 'Toys') { baseColor = '248, 113, 113'; bgColor = '#1c0a0a'; }
+            else if (current_cat === 'Shoes') { baseColor = '251, 146, 60'; bgColor = '#1c0f05'; }
+
+            canvas.style.backgroundColor = bgColor;
+            document.body.style.backgroundColor = 'transparent';
+            document.body.style.color = '#ffffff';
+
+            document.documentElement.style.setProperty('--text-primary', '#ffffff');
+            document.documentElement.style.setProperty('--text-secondary', '#d1d5db');
+            document.documentElement.style.setProperty('--card-bg', 'rgba(20, 20, 20, 0.45)');
+            document.documentElement.style.setProperty('--card-border', 'rgba(255, 255, 255, 0.15)');
+            document.documentElement.style.setProperty('--glass-shadow', '0 8px 32px 0 rgba(0, 0, 0, 0.5)');
+            document.documentElement.style.setProperty('--glass-blur', 'blur(16px)');
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight * 2,
+                    r: Math.random() * 3.5 + 0.5,
+                    vy: -(Math.random() * 1.5 + 0.2),
+                    opacity: Math.random() * 0.7 + 0.1,
+                    trailLength: Math.random() * 80 + 20
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.vy;
+                    if (p.y < -p.trailLength) {
+                        p.y = canvas.height + p.trailLength + Math.random() * 100;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    const gradient = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.trailLength);
+                    gradient.addColorStop(0, `rgba(${baseColor}, ${p.opacity})`);
+                    gradient.addColorStop(1, `rgba(${baseColor}, 0)`);
+
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x, p.y + p.trailLength);
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = p.r * 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r * 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity + 0.4})`;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = `rgba(${baseColor}, 1)`;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>

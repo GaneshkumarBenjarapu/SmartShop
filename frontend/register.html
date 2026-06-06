@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShop Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #FFF6F0, #FFE0B2);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        a {
+            text-decoration: none;
+            color: #0066c0;
+        }
+
+        a:hover {
+            color: #c45500;
+            text-decoration: underline;
+        }
+
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px !important;
+            flex-grow: 1;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-box {
+            width: 350px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+            margin-bottom: 20px;
+            position: relative;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .form-box h2 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .form-box input[type="text"],
+        .form-box input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-box input:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 5px rgba(40,167,69,0.5);
+        }
+
+        .auth-button {
+            width: 100%;
+            background: #28a745;
+            border-color: #218838;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 8px;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .auth-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            margin-top: 20px;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(to bottom, #fbfbfb, #fbfbfb);
+            border-top: 1px solid #e7e7e7;
+            font-size: 11px;
+            color: #555;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .auth-footer a {
+            margin: 0 10px;
+        }
+
+        .auth-footer .copyright {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="font-size: 30px; margin-bottom: 0;">Smart<span style="color: #FF9900;">Shop</span></h1>
+        </div>
+
+        <div class="form-box">
+            <h2>Create account</h2>
+            
+            <div id="js-error" style="color: #dc3545; font-size: 13px; margin-bottom: 15px; font-weight: 500; background: rgba(220, 53, 69, 0.1); padding: 8px 12px; border-radius: 6px; display: none;">
+                <i class="fas fa-exclamation-triangle"></i> <span id="js-error-text"></span>
+            </div>
+
+            <form id="registerForm">
+                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Your name</label>
+                <input type="text" name="name" id="name" placeholder="First and last name" required>
+
+                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Mobile number or email</label>
+                <input type="text" name="email" id="email" placeholder="you@example.com or 10-digit mobile number" required>
+
+                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Password</label>
+                <input type="password" name="password" id="password" placeholder="At least 6 characters" required>
+                <div style="font-size: 11px; margin-bottom: 15px; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-info-circle" style="color: #007185;"></i> Passwords must be at least 6 characters.
+                </div>
+
+                <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; display: block;">Re-enter password</label>
+                <input type="password" name="confirm_password" id="confirm_password" required>
+
+                <button type="submit" class="auth-button">Continue</button>
+            </form>
+
+            <p style="font-size: 12px; margin-top: 20px; line-height: 1.5; color: #555;">
+                By creating an account, you agree to SmartShop's <a href="#">Conditions of Use</a> and <a href="#">Privacy Notice</a>.
+            </p>
+
+            <div style="margin-top: 20px; border-top: 1px solid #e7e7e7; padding-top: 15px; font-size: 13px;">
+                Already have an account? <a href="/login" style="font-weight: bold;">Sign in <i class="fas fa-caret-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-footer">
+        <div>
+            <a href="#">Conditions of Use</a>
+            <a href="#">Privacy Notice</a>
+            <a href="#">Help</a>
+        </div>
+        <div class="copyright">
+            © 2026 SmartShop | Powered by Group-3
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000'
+          : 'https://smartshop-web.onrender.com';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Pre-fill email from query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('email')) {
+                document.getElementById('email').value = urlParams.get('email');
+            }
+
+            const registerForm = document.getElementById('registerForm');
+            const jsErrorDiv = document.getElementById('js-error');
+            const jsErrorText = document.getElementById('js-error-text');
+
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                jsErrorDiv.style.display = 'none';
+
+                const name = document.getElementById('name').value.trim();
+                const identifier = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const confirmPassword = document.getElementById('confirm_password').value.trim();
+                
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const mobileRegex = /^\d{10}$/;
+                
+                let errorMsg = '';
+                if (!name) {
+                    errorMsg = 'Your name is required.';
+                } else if (!identifier) {
+                    errorMsg = 'Mobile number or email is required.';
+                } else if (!emailRegex.test(identifier) && !mobileRegex.test(identifier)) {
+                    errorMsg = 'Please enter a valid email address or 10-digit mobile number.';
+                } else if (!password) {
+                    errorMsg = 'Password is required.';
+                } else if (password.length < 6) {
+                    errorMsg = 'Password must be at least 6 characters.';
+                } else if (password !== confirmPassword) {
+                    errorMsg = 'Passwords do not match.';
+                }
+
+                if (errorMsg) {
+                    jsErrorText.textContent = errorMsg;
+                    jsErrorDiv.style.display = 'block';
+                    jsErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    return;
+                }
+
+                const formData = new FormData(registerForm);
+                try {
+                    const res = await fetch(`${API_URL}/register`, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.error) {
+                        jsErrorText.textContent = data.error;
+                        jsErrorDiv.style.display = 'block';
+                        jsErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } catch (err) {
+                    console.error("Register Error:", err);
+                    jsErrorText.textContent = 'Network error. Please try again.';
+                    jsErrorDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - SmartShop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffda66;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0066c0;
+        }
+
+        a:hover {
+            color: #c45500;
+            text-decoration: underline;
+        }
+
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            flex-grow: 1;
+        }
+
+        .form-box {
+            width: 350px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-box h2 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .form-box input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .form-box input:focus {
+            border-color: #e77600;
+            outline: none;
+            box-shadow: 0 0 3px rgba(228, 121, 17, .5);
+        }
+
+        .auth-button {
+            width: 100%;
+            background: #ffd814;
+            border-color: #fcd200;
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 8px;
+            color: #111;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(213, 217, 217, .5);
+        }
+
+        .auth-button:hover {
+            background: #f7ca00;
+            border-color: #f2c200;
+        }
+
+        .auth-footer {
+            margin-top: auto;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(to bottom, #fbfbfb, #fbfbfb);
+            border-top: 1px solid #e7e7e7;
+            font-size: 11px;
+            color: #555;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .auth-footer a {
+            margin: 0 10px;
+        }
+
+        .auth-footer .copyright {
+            margin-top: 10px;
+        }
+
+        #resend-btn {
+            background: #e5e7eb;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        #resend-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        #resend-btn:not(:disabled):hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div style="text-align: center; margin-bottom: 20px; max-width: 400px; padding: 0 20px;">
+            <h1 style="font-size: 24px; margin-bottom: 8px;">Enter the OTP</h1>
+            <div id="otp-message-container">
+                <p>Checking pending OTP session...</p>
+            </div>
+        </div>
+
+        <div class="form-box" style="max-width:420px; margin:0 auto;">
+            <div id="js-error" style="color: #dc3545; font-size: 13px; margin-bottom: 15px; font-weight: 500; background: rgba(220, 53, 69, 0.1); padding: 8px 12px; border-radius: 6px; display: none;">
+                <i class="fas fa-exclamation-triangle"></i> <span id="js-error-text"></span>
+            </div>
+
+            <form id="verifyForm">
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">
+                    One-time password
+                </label>
+
+                <input 
+                    type="text" 
+                    name="otp_code" 
+                    id="otp_code"
+                    maxlength="6"
+                    pattern="\d{6}"
+                    placeholder="Enter 6-digit code" 
+                    required 
+                    autofocus
+                    style="width:100%; padding:10px; margin-bottom:12px;" 
+                />
+
+                <div style="display:flex; gap:8px;">
+                    <button type="submit" class="auth-button">Verify</button>
+                    <a href="/login">
+                        <button type="button" style="background:#e5e7eb; border: 1px solid #ccc; padding: 8px 15px; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div style="max-width:420px; margin:10px auto; text-align:center;">
+            <button id="resend-btn" disabled>Resend OTP</button>
+            <div id="resend-msg" style="margin-top: 8px; font-size: 13px;"></div>
+        </div>
+    </div>
+
+    <div class="auth-footer">
+        <div>
+            <a href="#">Conditions of Use</a>
+            <a href="#">Privacy Notice</a>
+            <a href="#">Help</a>
+        </div>
+        <div class="copyright">
+            © 2026 SmartShop | Powered by Group-3
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000'
+          : 'https://smartshop-web.onrender.com';
+
+        const otpMessageContainer = document.getElementById('otp-message-container');
+        const verifyForm = document.getElementById('verifyForm');
+        const jsErrorDiv = document.getElementById('js-error');
+        const jsErrorText = document.getElementById('js-error-text');
+        const resendBtn = document.getElementById('resend-btn');
+        const resendMsg = document.getElementById('resend-msg');
+
+        async function updateResendStatus() {
+            try {
+                const r = await fetch(`${API_URL}/resend_status`, { credentials: 'include' });
+                const j = await r.json();
+
+                if (!j.has_pending) {
+                    otpMessageContainer.innerHTML = '<p>No OTP pending. Please <a href="/login">request a new OTP</a>.</p>';
+                    resendBtn.disabled = true;
+                    resendMsg.innerText = 'No OTP pending.';
+                    resendMsg.style.color = 'gray';
+                    return;
+                }
+
+                otpMessageContainer.innerHTML = `<p>We sent a one-time password to <strong>${j.recipient}</strong>. It expires in 2 minutes.</p>`;
+
+                if (j.seconds_left > 0) {
+                    resendBtn.disabled = true;
+                    resendMsg.innerText = 'Wait ' + j.seconds_left + 's';
+                    resendMsg.style.color = '#767676';
+                } else {
+                    resendBtn.disabled = false;
+                    const currentMsg = resendMsg.innerText;
+                    if (currentMsg !== 'OTP Sent!' && !currentMsg.startsWith('Maximum resend') && !currentMsg.startsWith('Max OTP limit')) {
+                        resendMsg.innerText = 'You can resend OTP';
+                        resendMsg.style.color = 'green';
+                    }
+                }
+            } catch (e) {
+                console.error("Error updating resend status:", e);
+            }
+        }
+
+        verifyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            jsErrorDiv.style.display = 'none';
+
+            const otpCode = document.getElementById('otp_code').value.trim();
+            if (otpCode.length !== 6 || isNaN(otpCode)) {
+                jsErrorText.textContent = 'Please enter a valid 6-digit OTP code.';
+                jsErrorDiv.style.display = 'block';
+                return;
+            }
+
+            const formData = new FormData(verifyForm);
+            try {
+                const res = await fetch(`${API_URL}/verify_otp`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.error) {
+                    jsErrorText.textContent = data.error;
+                    jsErrorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("OTP verification Error:", err);
+                jsErrorText.textContent = 'Network error. Please try again.';
+                jsErrorDiv.style.display = 'block';
+            }
+        });
+
+        resendBtn.addEventListener('click', async function() {
+            try {
+                const res = await fetch(`${API_URL}/resend_otp`, { 
+                    method: 'POST', 
+                    credentials: 'include' 
+                });
+                const j = await res.json();
+
+                if (res.ok && j.success) {
+                    resendMsg.innerText = 'OTP Sent!';
+                    resendMsg.style.color = 'green';
+                } else {
+                    resendMsg.innerText = j.error || 'Failed to resend OTP.';
+                    resendMsg.style.color = 'red';
+                }
+            } catch (e) {
+                console.error("OTP resend Error:", e);
+                resendMsg.innerText = 'An error occurred. Please try again.';
+                resendMsg.style.color = 'red';
+            }
+        });
+
+        // Initialize status and run intervals
+        updateResendStatus();
+        setInterval(updateResendStatus, 3000);
+    </script>
+</body>
+</html>

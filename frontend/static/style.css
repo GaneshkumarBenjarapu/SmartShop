@@ -311,38 +311,3 @@ footer {
 .product-list-item {
     background: white;
 }
-
-/* Full-page category backgrounds applied to body when filtered */
-body.category-bg-clothing {
-    background: linear-gradient(180deg, #FCE4EC 0%, #FFF5F8 100%) !important;
-}
-
-body.category-bg-electronics {
-    background: linear-gradient(180deg, #EBF5FF 0%, #F7FBFF 100%) !important;
-}
-
-/* Map Men/Women/Kids/Toys/Shoes to electronics pastel */
-body.category-bg-men-fashion,
-body.category-bg-women-fashion,
-body.category-bg-kidsware,
-body.category-bg-toys,
-body.category-bg-shoes {
-    background: linear-gradient(180deg, #EBF5FF 0%, #F7FBFF 100%) !important;
-}
-
-body.category-bg-beauty {
-    background: linear-gradient(180deg, #F3E8FF 0%, #FFF5FF 100%) !important;
-}
-
-body.category-bg-books {
-    background: linear-gradient(180deg, #FFF9C4 0%, #FFFEED 100%) !important;
-}
-
-body.category-bg-home-appliances {
-    background: linear-gradient(180deg, #E6F9E9 0%, #F9FFFB 100%) !important;
-}
-
-/* Ensure text remains readable on lighter backgrounds */
-body.category-bg-clothing, body.category-bg-electronics, body.category-bg-beauty, body.category-bg-books, body.category-bg-home-appliances {
-    color: #0f172a;
-}

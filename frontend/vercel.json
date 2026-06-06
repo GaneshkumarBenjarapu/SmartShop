@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/product/:id", "destination": "/product_detail.html" },
+    { "source": "/mood/:vibe", "destination": "/quiz_results.html" }
+  ]
+}
