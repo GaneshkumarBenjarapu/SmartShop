@@ -58,6 +58,9 @@ def translate_sqlite_to_postgres(sql):
         sql = sql.replace('INTEGER PRIMARY KEY AUTOINCREMENT', 'SERIAL PRIMARY KEY')
         sql = sql.replace('integer primary key autoincrement', 'serial primary key')
         
+    if 'ADD COLUMN' in sql_upper:
+        sql = sql.replace('ADD COLUMN', 'ADD COLUMN IF NOT EXISTS').replace('add column', 'add column if not exists')
+
     return sql
 
 class PostgresCursorWrapper:
